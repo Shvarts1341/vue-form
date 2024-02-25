@@ -1,10 +1,18 @@
 import Vue from 'vue'
+import Vuelidate from 'vuelidate'
+import VueTheMask from 'vue-the-mask'
 import App from './App.vue'
-import router from './router'
 
 Vue.config.productionTip = false
+Vue.config.devtools = true
+
+Vue.use(Vuelidate)
+Vue.use(VueTheMask)
 
 new Vue({
-  router,
+  el: '#app',
+  data: {
+    showModal: false
+  },
   render: h => h(App)
 }).$mount('#app')
