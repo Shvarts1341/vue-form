@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h1>Создание учётной записи</h1>
+    <h1>Создание учётной записи медицинского клиента</h1>
     <form ref="form" @submit.prevent="createUser" novalidate>
 
       <div class="stage" v-show="stage === 1">
@@ -8,10 +8,10 @@
         <h2>Основные данные</h2>
 
         <div class="form-group">
-          <label for="surname">Ваша фамилия*</label>
+          <label for="surname">Ваша фамилия<span class="warn">*</span></label>
           <input @blur="$v.formData.surname.$touch()"
                   :class="checkStatus(this.$v.formData.surname)"
-                  v-model="formData.surname" type="text" name="surname" id="surname" />
+                  v-model.trim="formData.surname" type="text" maxlength="30" name="surname" id="surname" />
 
           <div v-if="$v.formData.surname.$error && !$v.formData.surname.required" class="invalid-warning">
             {{ messageRequired }}
@@ -24,10 +24,10 @@
         </div>
 
         <div class="form-group">
-          <label for="name">Ваше имя*</label>
+          <label for="name">Ваше имя<span class="warn">*</span></label>
           <input @blur="$v.formData.name.$touch()"
                   :class="checkStatus(this.$v.formData.name)"
-                  v-model="formData.name" type="text" name="name" id="name" />
+                  v-model.trim="formData.name" type="text" maxlength="30" name="name" id="name" />
 
           <div v-if="$v.formData.name.$error && !$v.formData.name.required" class="invalid-warning">
             {{ messageRequired }}
@@ -43,7 +43,7 @@
           <label for="patronymic">Ваше отчество</label>
           <input @blur="$v.formData.patronymic.$touch()"
                   :class="checkStatus(this.$v.formData.patronymic)"
-                  v-model="formData.patronymic" type="text" name="patronymic" id="patronymic" />
+                  v-model.trim="formData.patronymic" type="text" maxlength="30" name="patronymic" id="patronymic" />
         </div>
 
         <div v-if="!$v.formData.patronymic.alpha" class="invalid-warning">
@@ -51,7 +51,7 @@
         </div>
 
         <div class="form-group">
-          <label for="birth_date">Дата рождения*</label>
+          <label for="birth_date">Дата рождения<span class="warn">*</span></label>
           <input @blur="$v.formData.birth_date.$touch()"
                   :class="checkStatus(this.$v.formData.birth_date)"
                   v-model="formData.birth_date" type="date" name="birth_date" id="birth_date" />
@@ -63,7 +63,7 @@
         </div>
 
         <div class="form-group">
-          <label for="phone">Номер телефона*</label>
+          <label for="phone">Номер телефона<span class="warn">*</span></label>
           <input v-mask="'+7 (###) ###-##-##'"
                   @blur="$v.formData.phone.$touch()"
                   :class="checkStatus(this.$v.formData.phone)"
@@ -85,15 +85,14 @@
         </div>
 
         <div class="form-group">
-          <label for="clients">Группа клиентов*</label>
-          <select @blur="$v.formData.clients.$touch()"
+          <label for="clients">Группа клиентов<span class="warn">*</span></label>
+          <multiselect @blur="$v.formData.clients.$touch()"
                     :class="checkStatus(this.$v.formData.clients)"
-                    v-model="formData.clients" name="clients" id="clients">
-            <option disabled value=""></option>
-            <option value="vip">VIP</option>
-            <option value="problems">Проблемные</option>
-            <option value="oms">ОМС</option>
-          </select>
+                    v-model="value" :options="options"
+                    :searchable="false" :allow-empty="false" :multiple="true" :limit="3"
+                    name="clients" id="clients">
+                    <template slot="selection" slot-scope="{ values, isOpen }"><span class="multiselect__single" v-if="values.length" v-show="!isOpen">{{ values.length }} options selected</span></template>
+          </multiselect>
 
           <div v-if="$v.formData.clients.$error && !$v.formData.clients.$required" class="invalid-warning">
             {{ messageRequired }}
@@ -111,10 +110,12 @@
           </select>
         </div>
 
-        <div class="form-group">
-          <label for="no_send">Не отправлять СМС</label>
-          <input v-model="formData.no_send" type="checkbox" name="no_send" id="no_send" />
+        <div class="form-checkbox">
+          <input type="checkbox" id="checkbox">
+          <label for="checkbox">Не отправлять СМС</label>
         </div>
+
+        <div class="message"><p><span class="warn">*</span> - Поля, обязательные для заполнения</p></div>
 
         <button @click="nextStage"
                 :disabled="buttonDisableStage1"
@@ -127,24 +128,39 @@
           <h2>Адрес проживания</h2>
           <div class="form-group">
             <label for="index">Индекс</label>
-            <input v-model="formData.index" type="text" name="index" id="index" />
+            <input v-mask="'######'"
+                    @blur="$v.formData.index.$touch()"
+                    :class="checkStatus(this.$v.formData.index)"
+                    v-model="formData.index" type="text" name="index" id="index" />
           </div>
 
           <div class="form-group">
             <label for="country">Страна</label>
-            <input v-model="formData.country" type="text" name="country" id="country" />
+            <input @blur="$v.formData.country.$touch()"
+                    :class="checkStatus(this.$v.formData.country)"
+                    v-model.trim="formData.country" type="text" maxlength="20" name="country" id="country" />
+          </div>
+
+          <div v-if="!$v.formData.country.alpha" class="invalid-warning">
+            {{ messageAlpha }}
           </div>
 
           <div class="form-group">
             <label for="region">Область</label>
-            <input v-model="formData.region" type="text" name="region" id="region" />
+            <input @blur="$v.formData.region.$touch()"
+                    :class="checkStatus(this.$v.formData.region)"
+                    v-model.trim="formData.region" type="text" maxlength="20" name="region" id="region" />
+          </div>
+
+          <div v-if="!$v.formData.region.alpha" class="invalid-warning">
+            {{ messageAlpha }}
           </div>
 
           <div class="form-group">
-            <label for="city">Город*</label>
+            <label for="city">Город<span class="warn">*</span></label>
             <input @blur="$v.formData.city.$touch()"
                     :class="checkStatus(this.$v.formData.city)"
-                    v-model="formData.city" type="text" name="city" id="city" />
+                    v-model.trim="formData.city" type="text" name="city" id="city" />
 
           <div v-if="$v.formData.city.$error && !$v.formData.city.required" class="invalid-warning">
             {{ messageRequired }}
@@ -158,13 +174,27 @@
 
           <div class="form-group">
             <label for="street">Улица</label>
-            <input v-model="formData.street" type="text" name="street" id="street" />
+            <input @blur="$v.formData.street.$touch()"
+                    :class="checkStatus(this.$v.formData.street)"
+                    v-model.trim="formData.street" type="text" maxlength="20" name="street" id="street" />
+          </div>
+
+          <div v-if="!$v.formData.street.alpha" class="invalid-warning">
+            {{ messageAlpha }}
           </div>
 
           <div class="form-group">
             <label for="home">Дом</label>
-            <input v-model="formData.home" type="text" name="home" id="home" />
+            <input @blur="$v.formData.home.$touch()"
+                    :class="checkStatus(this.$v.formData.home)"
+                    v-model.trim="formData.home" type="text" maxlength="4" name="home" id="home" />
           </div>
+
+          <div v-if="!$v.formData.home.numeric" class="invalid-warning">
+              {{ messageNumeric }}
+          </div>
+
+          <div class="message"><p><span class="warn">*</span> - Поля, обязательные для заполнения</p></div>
 
           <button @click="prevStage" type="button" class="prev">Назад</button>
           <button  @click="nextStage"
@@ -178,7 +208,7 @@
           <h2>Документ, удостоверяющий личность</h2>
 
           <div class="form-group">
-            <label for="type">Тип документа*</label>
+            <label for="type">Тип документа<span class="warn">*</span></label>
             <select @blur="$v.formData.type.$touch()"
                       :class="checkStatus(this.$v.formData.type)"
                       v-model="formData.type" name="type" id="type">
@@ -188,66 +218,80 @@
               <option value="license">Водительское удостоверение</option>
             </select>
 
-          <div v-if="$v.formData.type.$error && !$v.formData.type.$required" class="invalid-warning">
-            {{ messageRequired }}
-          </div>
+            <div v-if="$v.formData.type.$error && !$v.formData.type.$required" class="invalid-warning">
+              {{ messageRequired }}
+            </div>
 
           </div>
 
           <div class="form-group">
             <label for="series">Серия</label>
-            <input v-model="formData.series" type="text" name="series" id="series" />
+            <input v-mask="'######'"
+                  v-model="formData.series" type="text" name="series" id="series" />
           </div>
 
           <div class="form-group">
             <label for="pass_num">Номер</label>
-            <input v-model="formData.pass_num" type="text" name="pass_num" id="pass_num" />
+            <input v-mask="'## ##'"
+                  v-model="formData.pass_num" type="text" name="pass_num" id="pass_num" />
           </div>
 
           <div class="form-group">
             <label for="who_issued">Кем выдан</label>
-            <input v-model="formData.who_issued" type="text" name="who_issued" id="who_issued" />
+            <input v-model.trim="formData.who_issued" type="text" maxlength="50" name="who_issued" id="who_issued" />
           </div>
 
           <div class="form-group">
-            <label for="date_extradition">Дата выдачи*</label>
+            <label for="date_extradition">Дата выдачи<span class="warn">*</span></label>
             <input @blur="$v.formData.date_extradition.$touch()"
                     :class="checkStatus(this.$v.formData.date_extradition)"
                     v-model="formData.date_extradition" type="date" name="date_extradition" id="date_extradition" />
 
-          <div v-if="$v.formData.date_extradition.$error && !$v.formData.date_extradition.$required" class="invalid-warning">
-            {{ messageRequired }}
-          </div>
+            <div v-if="$v.formData.date_extradition.$error && !$v.formData.date_extradition.$required" class="invalid-warning">
+              {{ messageRequired }}
+            </div>
 
           </div>
+
+          <div class="message"><p><span class="warn">*</span> - Поля, обязательные для заполнения</p></div>
 
           <button @click="prevStage" type="button" class="prev">Назад</button>
           <button @click="showModal = true"
                   :disabled="registrationDisable"
                   type="submit" class="submit">Зарегистрироваться</button>
+
+                  <div v-if="registrationDisable" class="invalid-warning">
+                    <p>Заполните все обязательные поля и проверьте введённые данные</p>
+                  </div>
         </div>
       </transition>
+
       <div v-if="showModal" class="modal">
       <div class="modal-content">
         <span @click="showModal = false" class="close">&times;</span>
         <p>Вы успешно зарегистрировались!</p>
       </div>
     </div>
+
     </form>
   </div>
 </template>
 
 <script>
-import { required, helpers } from 'vuelidate/lib/validators'
+import { required, helpers, numeric } from 'vuelidate/lib/validators'
 
 const alpha = helpers.regex('alpha', /^[a-zA-Zа-яёА-ЯЁ]*$/)
 
 export default {
   data () {
     return {
+      value: null,
+      options: ['list', 'of', 'options'],
       stage: 1,
+      showModal: '',
       messageRequired: 'Поле обязательно для заполнения',
       messageAlpha: 'В поле могут содержаться только буквы',
+      messageNumeric: 'В поле могут содержаться только цифры',
       formData: {
         surname: '',
         name: '',
@@ -285,7 +329,12 @@ export default {
     },
     registrationDisable () {
       return this.$v.formData.type.$invalid ||
-              this.$v.formData.date_extradition.$invalid
+              this.$v.formData.date_extradition.$invalid ||
+              !this.$v.formData.patronymic.alpha ||
+              !this.$v.formData.country.alpha ||
+              !this.$v.formData.region.alpha ||
+              !this.$v.formData.street.alpha ||
+              !this.$v.formData.home.numeric
     }
   },
   methods: {
@@ -333,8 +382,29 @@ export default {
         required,
         alpha
       },
+      index: {
+        numeric
+      },
+      country: {
+        alpha
+      },
+      region: {
+        alpha
+      },
+      street: {
+        alpha
+      },
+      home: {
+        numeric
+      },
       type: {
         required
+      },
+      series: {
+        numeric
+      },
+      pass_num: {
+        numeric
       },
       date_extradition: {
         required
@@ -346,6 +416,9 @@ export default {
 
 <style lang="sass">
 
+$warning-bg: rgb(255 6 6 / 42%)
+$warning-red: #fd0000
+
 @mixin flex-column
   display: flex
   flex-direction: column
@@ -354,17 +427,21 @@ export default {
   @include flex-column
   justify-content: center
   align-items: center
-  gap: 5em
+  gap: 4em
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+
+  h1
+    text-align: center
 
   form
     max-width: 80vw
-    background-color: rgba(0, 0, 0, 0.3)
-    padding: 3em 10em
-    border: 1px solid black
-    border-radius: 3em
+    background-color: rgba(255, 120, 0, .7)
+    padding: 3em 8em
+    border-radius: 2.5em
     font-size: 1.5em
 
     h2
+      text-align: center
       font-size: 1.2em
 
     .stage
@@ -374,6 +451,9 @@ export default {
       margin-top: 1em
       @include flex-column
       gap: .5em
+
+    label
+      font-size: 0.8em
 
     input,
     select,
@@ -385,7 +465,17 @@ export default {
 
       &:focus
         outline: none
-        box-shadow: 1px 1px 2px 0 blue
+
+    .form-checkbox
+      margin-top: 0.5em
+
+      input
+        margin-right: 0.5em
+
+    button
+      margin-top: 1em
+      &:hover
+        box-shadow: 1px 1px 2px 0 #ccc
 
 .slide-fade-enter-active
   transition: all .6s ease
@@ -395,10 +485,13 @@ export default {
   opacity: 0
 
 .invalid
-  background-color: #FF7373
+  background-color: $warning-bg
+
+.warn
+  color: $warning-red
 
 .invalid-warning
-  color: #FF7373
+  color: $warning-red
   font-size: 0.7em
 
 .modal
@@ -428,5 +521,8 @@ export default {
     color: black
     text-decoration: none
     cursor: pointer
+
+.message
+  font-size: 0.8em
 
 </style>
