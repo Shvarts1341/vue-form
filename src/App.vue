@@ -11,7 +11,7 @@
           <label for="surname">Ваша фамилия<span class="warn">*</span></label>
           <input @blur="$v.formData.surname.$touch()"
                   :class="checkStatus(this.$v.formData.surname)"
-                  v-model.trim="formData.surname" type="text" maxlength="30" name="surname" id="surname" />
+                  v-model.trim="formData.surname" type="text" maxlength="30" name="surname" id="surname" autocomplete="off" />
 
           <div v-if="$v.formData.surname.$error && !$v.formData.surname.required" class="invalid-warning">
             {{ messageRequired }}
@@ -27,7 +27,7 @@
           <label for="name">Ваше имя<span class="warn">*</span></label>
           <input @blur="$v.formData.name.$touch()"
                   :class="checkStatus(this.$v.formData.name)"
-                  v-model.trim="formData.name" type="text" maxlength="30" name="name" id="name" />
+                  v-model.trim="formData.name" type="text" maxlength="30" name="name" id="name" autocomplete="off" />
 
           <div v-if="$v.formData.name.$error && !$v.formData.name.required" class="invalid-warning">
             {{ messageRequired }}
@@ -43,7 +43,7 @@
           <label for="patronymic">Ваше отчество</label>
           <input @blur="$v.formData.patronymic.$touch()"
                   :class="checkStatus(this.$v.formData.patronymic)"
-                  v-model.trim="formData.patronymic" type="text" maxlength="30" name="patronymic" id="patronymic" />
+                  v-model.trim="formData.patronymic" type="text" maxlength="30" name="patronymic" id="patronymic" autocomplete="off" />
         </div>
 
         <div v-if="!$v.formData.patronymic.alpha" class="invalid-warning">
@@ -67,7 +67,7 @@
           <input v-mask="'+7 (###) ###-##-##'"
                   @blur="$v.formData.phone.$touch()"
                   :class="checkStatus(this.$v.formData.phone)"
-                  v-model="formData.phone" type="tel" name="phone" id="phone" />
+                  v-model="formData.phone" type="tel" name="phone" id="phone" autocomplete="off" />
 
           <div v-if="$v.formData.phone.$error && !$v.formData.phone.$required" class="invalid-warning">
             {{ messageRequired }}
@@ -86,18 +86,16 @@
 
         <div class="form-group">
           <label for="clients">Группа клиентов<span class="warn">*</span></label>
-          <multiselect @blur="$v.formData.clients.$touch()"
+          <select @blur="$v.formData.clients.$touch()"
                     :class="checkStatus(this.$v.formData.clients)"
-                    v-model="value" :options="options"
-                    :searchable="false" :allow-empty="false" :multiple="true" :limit="3"
-                    name="clients" id="clients">
-                    <template slot="selection" slot-scope="{ values, isOpen }"><span class="multiselect__single" v-if="values.length" v-show="!isOpen">{{ values.length }} options selected</span></template>
-          </multiselect>
+                    v-model="formData.clients" name="clients" id="clients" multiple>
+            <option v-for="(option, index) in options" :key="index"> {{ option }} </option>
+          </select>
+          <div class="elems">Выбранные группы: {{ formData.clients }}</div>
 
           <div v-if="$v.formData.clients.$error && !$v.formData.clients.$required" class="invalid-warning">
             {{ messageRequired }}
           </div>
-
         </div>
 
         <div class="form-group">
@@ -131,14 +129,14 @@
             <input v-mask="'######'"
                     @blur="$v.formData.index.$touch()"
                     :class="checkStatus(this.$v.formData.index)"
-                    v-model="formData.index" type="text" name="index" id="index" />
+                    v-model="formData.index" type="text" name="index" id="index" autocomplete="off" />
           </div>
 
           <div class="form-group">
             <label for="country">Страна</label>
             <input @blur="$v.formData.country.$touch()"
                     :class="checkStatus(this.$v.formData.country)"
-                    v-model.trim="formData.country" type="text" maxlength="20" name="country" id="country" />
+                    v-model.trim="formData.country" type="text" maxlength="20" name="country" id="country" autocomplete="off" />
           </div>
 
           <div v-if="!$v.formData.country.alpha" class="invalid-warning">
@@ -149,7 +147,7 @@
             <label for="region">Область</label>
             <input @blur="$v.formData.region.$touch()"
                     :class="checkStatus(this.$v.formData.region)"
-                    v-model.trim="formData.region" type="text" maxlength="20" name="region" id="region" />
+                    v-model.trim="formData.region" type="text" maxlength="20" name="region" id="region" autocomplete="off" />
           </div>
 
           <div v-if="!$v.formData.region.alpha" class="invalid-warning">
@@ -160,7 +158,7 @@
             <label for="city">Город<span class="warn">*</span></label>
             <input @blur="$v.formData.city.$touch()"
                     :class="checkStatus(this.$v.formData.city)"
-                    v-model.trim="formData.city" type="text" name="city" id="city" />
+                    v-model.trim="formData.city" type="text" name="city" id="city" autocomplete="off" />
 
           <div v-if="$v.formData.city.$error && !$v.formData.city.required" class="invalid-warning">
             {{ messageRequired }}
@@ -176,7 +174,7 @@
             <label for="street">Улица</label>
             <input @blur="$v.formData.street.$touch()"
                     :class="checkStatus(this.$v.formData.street)"
-                    v-model.trim="formData.street" type="text" maxlength="20" name="street" id="street" />
+                    v-model.trim="formData.street" type="text" maxlength="20" name="street" id="street" autocomplete="off" />
           </div>
 
           <div v-if="!$v.formData.street.alpha" class="invalid-warning">
@@ -187,7 +185,7 @@
             <label for="home">Дом</label>
             <input @blur="$v.formData.home.$touch()"
                     :class="checkStatus(this.$v.formData.home)"
-                    v-model.trim="formData.home" type="text" maxlength="4" name="home" id="home" />
+                    v-model.trim="formData.home" type="text" maxlength="4" name="home" id="home" autocomplete="off" />
           </div>
 
           <div v-if="!$v.formData.home.numeric" class="invalid-warning">
@@ -227,18 +225,18 @@
           <div class="form-group">
             <label for="series">Серия</label>
             <input v-mask="'######'"
-                  v-model="formData.series" type="text" name="series" id="series" />
+                  v-model="formData.series" type="text" name="series" id="series" autocomplete="off" />
           </div>
 
           <div class="form-group">
             <label for="pass_num">Номер</label>
             <input v-mask="'## ##'"
-                  v-model="formData.pass_num" type="text" name="pass_num" id="pass_num" />
+                  v-model="formData.pass_num" type="text" name="pass_num" id="pass_num" autocomplete="off" />
           </div>
 
           <div class="form-group">
             <label for="who_issued">Кем выдан</label>
-            <input v-model.trim="formData.who_issued" type="text" maxlength="50" name="who_issued" id="who_issued" />
+            <input v-model.trim="formData.who_issued" type="text" maxlength="50" name="who_issued" id="who_issued" autocomplete="off" />
           </div>
 
           <div class="form-group">
@@ -256,7 +254,7 @@
           <div class="message"><p><span class="warn">*</span> - Поля, обязательные для заполнения</p></div>
 
           <button @click="prevStage" type="button" class="prev">Назад</button>
-          <button @click="showModal = true"
+          <button
                   :disabled="registrationDisable"
                   type="submit" class="submit">Зарегистрироваться</button>
 
@@ -266,15 +264,8 @@
         </div>
       </transition>
 
-      <div v-if="showModal" class="modal">
-      <div class="modal-content">
-        <span @click="showModal = false" class="close">&times;</span>
-        <p>Вы успешно зарегистрировались!</p>
-      </div>
-    </div>
-
-    </form>
-  </div>
+  </form>
+</div>
 </template>
 
 <script>
@@ -285,13 +276,11 @@ const alpha = helpers.regex('alpha', /^[a-zA-Zа-яёА-ЯЁ]*$/)
 export default {
   data () {
     return {
-      value: null,
-      options: ['list', 'of', 'options'],
       stage: 1,
-      showModal: '',
       messageRequired: 'Поле обязательно для заполнения',
       messageAlpha: 'В поле могут содержаться только буквы',
       messageNumeric: 'В поле могут содержаться только цифры',
+      options: ['VIP', 'Проблемные', 'ОМС'],
       formData: {
         surname: '',
         name: '',
@@ -299,7 +288,7 @@ export default {
         birth_date: '',
         phone: '',
         sex: '',
-        clients: '',
+        clients: [],
         doctor: '',
         no_send: '',
         index: '',
@@ -351,11 +340,13 @@ export default {
     },
 
     createUser () {
+      alert('Клиент успешно зарегистрирован!')
       this.stage = 1
       this.$refs.form.reset()
-      this.$v.reset()
+      this.$v.$reset()
     }
   },
+
   validations: {
     formData: {
       surname: {
@@ -432,6 +423,7 @@ $warning-red: #fd0000
 
   h1
     text-align: center
+    margin-top: 2em
 
   form
     max-width: 80vw
@@ -443,6 +435,7 @@ $warning-red: #fd0000
     h2
       text-align: center
       font-size: 1.2em
+      max-width: 500px
 
     .stage
       @include flex-column
@@ -452,7 +445,9 @@ $warning-red: #fd0000
       @include flex-column
       gap: .5em
 
-    label
+    label,
+    option,
+    .elems
       font-size: 0.8em
 
     input,
@@ -493,28 +488,6 @@ $warning-red: #fd0000
 .invalid-warning
   color: $warning-red
   font-size: 0.7em
-
-.modal
-  display: none
-  position: fixed
-  z-index: 1
-  left: 0
-  top: 0
-  width: 100%
-  height: 100%
-  background-color: rgba(0,0,0,0.5)
-
-.modal-content
-  background-color: white
-  margin: 15% auto
-  padding: 20px
-  border: 1px solid #888
-  width: 80%
-
-.close
-  color: #aaa
-  float: right
-  font-size: 28px
 
   &:hover,
   &:focus

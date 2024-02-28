@@ -1,12 +1,10 @@
 import Vue from 'vue'
 import Vuelidate from 'vuelidate'
 import VueTheMask from 'vue-the-mask'
-import Multiselect from 'vue-multiselect'
 import App from './App.vue'
 
 Vue.config.productionTip = false
 Vue.config.devtools = true
-Vue.component('multiselect', Multiselect)
 
 Vue.use(Vuelidate)
 Vue.use(VueTheMask)
@@ -15,7 +13,7 @@ Vue.use(VueTheMask)
 new Vue({
   el: '#app',
   data: {
-    showModal: false
+
   },
   render: h => h(App)
 }).$mount('#app')
